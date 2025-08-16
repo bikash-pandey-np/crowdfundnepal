@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Link, usePage, router } from '@inertiajs/react';
+import React, { useState, useEffect, useRef } from "react";
+import { Link, usePage, router } from "@inertiajs/react";
 import {
     FaHome,
     FaBoxOpen,
@@ -20,15 +20,31 @@ import {
     FaClipboardList,
     FaStore,
     FaUserCircle,
-    FaCogs
-} from 'react-icons/fa';
+    FaCogs,
+} from "react-icons/fa";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Layout = ({ children }) => {
+    const { flash } = usePage().props;
+
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [openMenus, setOpenMenus] = useState({});
     const [userDropdownOpen, setUserDropdownOpen] = useState(false);
     const { auth } = usePage().props;
     const userDropdownRef = useRef(null);
+
+    //use effect to show success and error messages
+    useEffect(() => {
+        if (flash.success) {
+            toast.dismiss();
+            toast.success(flash.success);
+        }
+        if (flash.error) {
+            toast.dismiss();
+            toast.error(flash.error);
+        }
+    }, [flash]);
 
     // Responsive fix: close sidebar on desktop resize
     useEffect(() => {
@@ -37,11 +53,11 @@ const Layout = ({ children }) => {
                 setSidebarOpen(false);
             }
         };
-        window.addEventListener('resize', handleResize);
+        window.addEventListener("resize", handleResize);
         if (window.innerWidth >= 1024) {
             setSidebarOpen(false);
         }
-        return () => window.removeEventListener('resize', handleResize);
+        return () => window.removeEventListener("resize", handleResize);
     }, []);
 
     // Close user dropdown on outside click
@@ -55,57 +71,57 @@ const Layout = ({ children }) => {
             }
         }
         if (userDropdownOpen) {
-            document.addEventListener('mousedown', handleClickOutside);
+            document.addEventListener("mousedown", handleClickOutside);
         } else {
-            document.removeEventListener('mousedown', handleClickOutside);
+            document.removeEventListener("mousedown", handleClickOutside);
         }
         return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
+            document.removeEventListener("mousedown", handleClickOutside);
         };
     }, [userDropdownOpen]);
 
     // Sidebar navigation for ecommerce with submenus
     const navigation = [
         {
-            name: 'Dashboard',
-            href: route('admin.dashboard'),
+            name: "Dashboard",
+            href: route("admin.dashboard"),
             icon: FaHome,
         },
         {
-            name: 'Products',
+            name: "Products",
             icon: FaBoxOpen,
             subItems: [
-                { name: 'All Products', href: '#', icon: FaList },
-                { name: 'Categories', href: '#', icon: FaTags },
-                { name: 'Inventory', href: '#', icon: FaClipboardList },
+                { name: "All Products", href: "#", icon: FaList },
+                { name: "Categories", href: "#", icon: FaTags },
+                { name: "Inventory", href: "#", icon: FaClipboardList },
             ],
         },
         {
-            name: 'Orders',
+            name: "Orders",
             icon: FaShoppingCart,
             subItems: [
-                { name: 'All Orders', href: '#', icon: FaList },
-                { name: 'Returns', href: '#', icon: FaChevronRight },
+                { name: "All Orders", href: "#", icon: FaList },
+                { name: "Returns", href: "#", icon: FaChevronRight },
             ],
         },
         {
-            name: 'Customers',
-            href: '#',
+            name: "Customers",
+            href: "#",
             icon: FaUsers,
         },
         {
-            name: 'Stores',
-            href: '#',
+            name: "Stores",
+            href: "#",
             icon: FaStore,
         },
         {
-            name: 'Analytics',
-            href: '#',
+            name: "Analytics",
+            href: "#",
             icon: FaChartBar,
         },
         {
-            name: 'Settings',
-            href: '#',
+            name: "Settings",
+            href: "#",
             icon: FaCog,
         },
     ];
@@ -123,7 +139,7 @@ const Layout = ({ children }) => {
 
     const handleLogout = (e) => {
         e.preventDefault();
-        router.post(route('logout'));
+        router.post(route("admin.logout"));
     };
 
     return (
@@ -132,17 +148,21 @@ const Layout = ({ children }) => {
             <aside
                 className={`
                     fixed z-40 inset-y-0 left-0 w-64 bg-white shadow-lg border-r border-purple-100 transform transition-transform duration-300 ease-in-out
-                    ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+                    ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
                     lg:translate-x-0 lg:static lg:inset-0
                 `}
-                style={{ willChange: 'transform' }}
+                style={{ willChange: "transform" }}
             >
                 <div className="flex items-center justify-between h-16 px-6 border-b border-purple-100 bg-gradient-to-r from-purple-700 to-purple-800">
                     <div className="flex items-center">
                         <div className="w-9 h-9 bg-white rounded-lg flex items-center justify-center shadow">
-                            <span className="text-purple-800 font-extrabold text-xl">A</span>
+                            <span className="text-purple-800 font-extrabold text-xl">
+                                A
+                            </span>
                         </div>
-                        <span className="ml-3 text-white font-bold text-xl tracking-wide">Admin <sup>1.0</sup></span>
+                        <span className="ml-3 text-white font-bold text-xl tracking-wide">
+                            Admin <sup>1.0</sup>
+                        </span>
                     </div>
                     <button
                         onClick={toggleSidebar}
@@ -161,11 +181,15 @@ const Layout = ({ children }) => {
                                     <li key={item.name}>
                                         <button
                                             type="button"
-                                            onClick={() => handleMenuClick(item.name)}
+                                            onClick={() =>
+                                                handleMenuClick(item.name)
+                                            }
                                             className="flex items-center w-full px-4 py-3 rounded-lg text-purple-800 font-medium hover:bg-purple-100 transition group focus:outline-none"
                                         >
                                             <Icon className="h-5 w-5 mr-3 text-purple-500 group-hover:text-purple-700 transition" />
-                                            <span className="flex-1 text-left">{item.name}</span>
+                                            <span className="flex-1 text-left">
+                                                {item.name}
+                                            </span>
                                             <span>
                                                 {openMenus[item.name] ? (
                                                     <FaChevronDown className="h-4 w-4 text-purple-400" />
@@ -185,7 +209,9 @@ const Layout = ({ children }) => {
                                                                 className="flex items-center px-3 py-2 rounded-lg text-purple-700 font-normal hover:bg-purple-50 transition group"
                                                             >
                                                                 <SubIcon className="h-4 w-4 mr-2 text-purple-400 group-hover:text-purple-700 transition" />
-                                                                <span>{sub.name}</span>
+                                                                <span>
+                                                                    {sub.name}
+                                                                </span>
                                                             </Link>
                                                         </li>
                                                     );
@@ -217,8 +243,12 @@ const Layout = ({ children }) => {
                                 <FaUser className="h-5 w-5 text-white" />
                             </div>
                             <div className="ml-3">
-                                <p className="text-base font-semibold text-purple-900">{auth?.user?.name || 'Admin'}</p>
-                                <p className="text-xs text-purple-400">Administrator</p>
+                                <p className="text-base font-semibold text-purple-900">
+                                    {auth?.user?.name || "Admin"}
+                                </p>
+                                <p className="text-xs text-purple-400">
+                                    Administrator
+                                </p>
                             </div>
                         </div>
                         <button
@@ -277,7 +307,9 @@ const Layout = ({ children }) => {
                             <div className="relative" ref={userDropdownRef}>
                                 <button
                                     className="flex items-center space-x-2 p-2 rounded-full hover:bg-purple-100 transition focus:outline-none"
-                                    onClick={() => setUserDropdownOpen((open) => !open)}
+                                    onClick={() =>
+                                        setUserDropdownOpen((open) => !open)
+                                    }
                                     aria-haspopup="true"
                                     aria-expanded={userDropdownOpen}
                                 >
@@ -285,7 +317,7 @@ const Layout = ({ children }) => {
                                         <FaUser className="h-5 w-5 text-white" />
                                     </div>
                                     <span className="hidden md:block text-base font-semibold text-purple-900">
-                                        {auth?.user?.name || 'Admin'}
+                                        {auth?.user?.name || "Admin"}
                                     </span>
                                     <FaChevronDown className="ml-1 text-purple-400" />
                                 </button>
@@ -319,11 +351,19 @@ const Layout = ({ children }) => {
                     </div>
                 </header>
                 {/* Page content */}
-                <main className="p-4 lg:p-8 lg:ml-4">
-                    {children}
-                </main>
-                
+                <main className="p-4 lg:p-8 lg:ml-4">{children}</main>
             </div>
+
+            <ToastContainer
+                position="bottom-right"
+                autoClose={3000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnHover={false}
+                theme="light"
+            />
         </div>
     );
 };
